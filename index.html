@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PACE Tool Calculator</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; background-color: #f9f9f9; color: #333; }
+        .container { background-color: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        h2 { text-align: center; color: #2c3e50; }
+        .question { margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #eee; }
+        .question label { display: block; font-weight: bold; margin-bottom: 10px; }
+        select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 16px; }
+        #result-box { margin-top: 30px; padding: 20px; border-radius: 6px; text-align: center; display: none; }
+        .score { font-size: 24px; font-weight: bold; margin-bottom: 10px; }
+        .danger { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .warning { background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
+        .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Pre-Attendance Conference Evaluator (PACE)</h2>
+    <p>Select your observation for each of the 11 criteria below to determine the legitimacy of the academic conference.</p>
+
+    <form id="paceForm">
+        <script>
+            const questions = [
+                "1. The conference has a peer-review protocol for submitted presentations.",
+                "2. The conference has made no false claims of indexing in reputed libraries.",
+                "3. The content of the conference brochures, proceedings, and website is grammatically sound.",
+                "4. The conference has a specific theme or is focused on one subject of interest.",
+                "5. The conference is associated with a legitimate, non-predatory journal.",
+                "6. The conference is not known for sending unsolicited emails.",
+                "7. The conference has a clearly outlined schedule.",
+                "8. The conference is not marketed as being held in a tourist destination.",
+                "9. The conference has a legitimate organizing and scientific committee.",
+                "10. The abstracts of the delegates are not accepted quickly.",
+                "11. The website layout is well-designed and professional."
+            ];
+
+            questions.forEach((q, index) => {
+                document.write(`
+                    <div class="question">
+                        <label>${q}</label>
+                        <select class="score-dropdown" onchange="calculateScore()">
+                            <option value="" disabled selected>Select an option...</option>
+                            <option value="0">NO (0 points)</option>
+                            <option value="1">MAYBE (1 point)</option>
+                            <option value="2">YES (2 points)</option>
+                        </select>
+                    </div>
+                `);
+            });
+        </script>
+    </form>
+
+    <div id="result-box">
+        <div class="score" id="score-text">Total Score: 0 / 22</div>
+        <div id="inference-text"></div>
+    </div>
+</div>
+
+<script>
+    function calculateScore() {
+        const dropdowns = document.querySelectorAll('.score-dropdown');
+        let totalScore = 0;
+        let allAnswered = true;
+
+        dropdowns.forEach(dropdown => {
+            if (dropdown.value === "") {
+                allAnswered = false;
+            } else {
+                totalScore += parseInt(dropdown.value);
+            }
+        });
+
+        if (allAnswered) {
+            const resultBox = document.getElementById('result-box');
+            const scoreText = document.getElementById('score-text');
+            const inferenceText = document.getElementById('inference-text');
+
+            resultBox.style.display = 'block';
+            scoreText.innerText = \`Total Score: \${totalScore} / 22\`;
+
+            // Remove existing classes
+            resultBox.classList.remove('danger', 'warning', 'success');
+
+            if (totalScore < 14) {
+                resultBox.classList.add('danger');
+                inferenceText.innerText = "Inference: Questionable Legitimacy. Registration must be done with extreme caution.";
+            } else if (totalScore >= 14 && totalScore <= 16) {
+                resultBox.classList.add('warning');
+                inferenceText.innerText = "Inference: Borderline Score. Requires informed judgment and further investigation.";
+            } else {
+                resultBox.classList.add('success');
+                inferenceText.innerText = "Inference: Likely Legitimate. The conference demonstrates standard academic practices.";
+            }
+        }
+    }
+</script>
+
+</body>
+</html>
