@@ -3,26 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PACE Tool - Live Assessment</title>
+    <title>PACE Tool - Dark Mode Assessment</title>
     <style>
+        /* Dark Theme Variables */
+        :root {
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --text-main: #e0e0e0;
+            --text-muted: #a0a0a0;
+            --border-color: #333333;
+            --accent-blue: #4facfe;
+            --success-green: #00e676;
+            --warning-yellow: #ffea00;
+            --danger-red: #ff1744;
+        }
+
         body { 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
-            max-width: 800px; 
+            font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+            max-width: 850px; 
             margin: 0 auto; 
             padding: 20px; 
-            background-color: #f0f4f8; 
-            color: #333; 
+            background-color: var(--bg-color); 
+            color: var(--text-main); 
         }
+        
         .container { 
-            background-color: #fff; 
-            padding: 30px; 
-            border-radius: 12px; 
-            box-shadow: 0 8px 16px rgba(0,0,0,0.08); 
+            background-color: var(--card-bg); 
+            padding: 40px; 
+            border-radius: 16px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
+            border: 1px solid var(--border-color);
         }
+        
         h2 { 
             text-align: center; 
-            color: #2c3e50; 
+            color: #ffffff; 
             margin-bottom: 25px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
         }
         
         /* Dashboard & Gauge Styles */
@@ -30,205 +48,19 @@
             display: flex; 
             flex-direction: column; 
             align-items: center; 
-            margin-bottom: 35px; 
+            margin-bottom: 40px; 
             padding: 30px 20px; 
-            background: #fafbfc; 
+            background: #252525; 
             border-radius: 12px; 
-            border: 1px solid #e1e4e8; 
+            border: 1px solid var(--border-color); 
         }
+        
         .gauge-container {
-            width: 240px;
-            height: 120px;
-            position: relative;
-            overflow: hidden;
-            margin-bottom: 10px;
+            width: 240px; height: 120px;
+            position: relative; overflow: hidden;
+            margin-bottom: 15px;
         }
         .gauge-bg {
-            width: 240px;
-            height: 240px;
-            box-sizing: border-box;
-            border-radius: 50%;
-            border: 30px solid #e9ecef;
-            position: absolute;
-            top: 0; left: 0;
-            border-bottom-color: transparent;
-            border-right-color: transparent;
-            transform: rotate(45deg);
-        }
-        .gauge-fill {
-            width: 240px;
-            height: 240px;
-            box-sizing: border-box;
-            border-radius: 50%;
-            border: 30px solid #dc3545; /* Default Red */
-            position: absolute;
-            top: 0; left: 0;
-            border-bottom-color: transparent;
-            border-right-color: transparent;
-            transform: rotate(-135deg); /* Starts at 0 score */
-            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.6s;
-        }
-        .score-container {
-            position: absolute;
-            bottom: 0;
-            width: 100%;
-            text-align: center;
-            padding-bottom: 5px;
-        }
-        .score-display { 
-            font-size: 42px; 
-            font-weight: bold; 
-            color: #2c3e50; 
-            line-height: 1; 
-        }
-        .score-max { 
-            font-size: 14px; 
-            color: #7f8c8d; 
-            margin-top: 4px;
-        }
-        .inference-badge { 
-            margin-top: 20px; 
-            padding: 8px 20px; 
-            border-radius: 20px; 
-            font-weight: bold; 
-            font-size: 16px; 
-            color: white; 
-            background-color: #dc3545; 
-            transition: background-color 0.6s, color 0.6s;
-        }
-        .inference-text { 
-            margin-top: 15px; 
-            text-align: center; 
-            font-size: 15px; 
-            color: #555; 
-            max-width: 500px;
-        }
-
-        /* Form Styles */
-        .question { 
-            margin-bottom: 20px; 
-            padding-bottom: 15px; 
-            border-bottom: 1px solid #f1f1f1; 
-        }
-        .question label { 
-            display: block; 
-            font-weight: bold; 
-            margin-bottom: 10px; 
-            color: #444; 
-            line-height: 1.4;
-        }
-        select { 
-            width: 100%; 
-            padding: 12px; 
-            border: 2px solid #e1e4e8; 
-            border-radius: 6px; 
-            font-size: 16px; 
-            transition: border-color 0.3s; 
-            appearance: none; 
-            background: url('data:image/svg+xml;utf8,<svg fill="%23333" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>') no-repeat right 10px center; 
-            background-color: white; 
-        }
-        select:focus { outline: none; border-color: #0366d6; }
-    </style>
-</head>
-<body>
-
-<div class="container">
-    <h2>Pre-Attendance Conference Evaluator</h2>
-    
-    <div class="dashboard">
-        <div class="gauge-container">
-            <div class="gauge-bg"></div>
-            <div class="gauge-fill" id="gaugeFill"></div>
-            <div class="score-container">
-                <div class="score-display" id="scoreDisplay">0</div>
-                <div class="score-max">out of 22</div>
-            </div>
-        </div>
-        <div class="inference-badge" id="inferenceBadge">Questionable</div>
-        <div class="inference-text" id="inferenceText">Score is below 14. Legitimacy is questionable. Registration must be done with caution.</div>
-    </div>
-
-    <form id="paceForm">
-        </form>
-</div>
-
-<script>
-    const questions = [
-        "1. The conference has a peer-review protocol for submitted presentations.",
-        "2. The conference has made no false claims of indexing in reputed libraries.",
-        "3. The content of the conference brochures, proceedings, and website is grammatically sound.",
-        "4. The conference has a specific theme or is focused on one subject of interest.",
-        "5. The conference is associated with a legitimate, non-predatory journal.",
-        "6. The conference is not known for sending unsolicited emails.",
-        "7. The conference has a clearly outlined schedule.",
-        "8. The conference is not marketed as being held in a tourist destination.",
-        "9. The conference has a legitimate organizing and scientific committee.",
-        "10. The abstracts of the delegates are not accepted quickly.",
-        "11. The website layout is well-designed and professional."
-    ];
-
-    const form = document.getElementById('paceForm');
-    
-    // Build the questions
-    questions.forEach((q, index) => {
-        const div = document.createElement('div');
-        div.className = 'question';
-        div.innerHTML = `
-            <label>${q}</label>
-            <select class="score-dropdown" onchange="updateScore()">
-                <option value="0" selected>NO (0 points)</option>
-                <option value="1">MAYBE (1 point)</option>
-                <option value="2">YES (2 points)</option>
-            </select>
-        `;
-        form.appendChild(div);
-    });
-
-    function updateScore() {
-        const dropdowns = document.querySelectorAll('.score-dropdown');
-        let totalScore = 0;
-        
-        dropdowns.forEach(dropdown => {
-            totalScore += parseInt(dropdown.value);
-        });
-
-        // 1. Update the number text
-        document.getElementById('scoreDisplay').innerText = totalScore;
-
-        // 2. Update Gauge rotation (Min angle: -135deg, Max angle: 45deg)
-        const degrees = -135 + (totalScore / 22) * 180;
-        const gaugeFill = document.getElementById('gaugeFill');
-        gaugeFill.style.transform = `rotate(${degrees}deg)`;
-
-        // 3. Update Colors and Text based on Cutoffs
-        const badge = document.getElementById('inferenceBadge');
-        const text = document.getElementById('inferenceText');
-
-        if (totalScore < 14) {
-            gaugeFill.style.borderColor = '#dc3545 transparent transparent #dc3545'; // Red
-            badge.style.backgroundColor = '#dc3545';
-            badge.style.color = 'white';
-            badge.innerText = "Questionable Legitimacy";
-            text.innerText = "The score falls below the cutoff of 14. Registration to attend must be done with extreme caution.";
-        } else if (totalScore >= 14 && totalScore <= 16) {
-            gaugeFill.style.borderColor = '#ffc107 transparent transparent #ffc107'; // Yellow
-            badge.style.backgroundColor = '#ffc107';
-            badge.style.color = '#333'; // Darker text for readability on yellow
-            badge.innerText = "Borderline Score";
-            text.innerText = "Borderline scores should be evaluated based on the evaluator's informed judgment.";
-        } else {
-            gaugeFill.style.borderColor = '#28a745 transparent transparent #28a745'; // Green
-            badge.style.backgroundColor = '#28a745';
-            badge.style.color = 'white';
-            badge.innerText = "Likely Legitimate";
-            text.innerText = "The conference demonstrates standard academic practices indicating legitimacy.";
-        }
-    }
-
-    // Initialize the live dashboard on first load
-    updateScore();
-</script>
-
-</body>
-</html>
+            width: 240px; height: 240px;
+            box-sizing: border-box; border-radius: 50%;
+            border: 30px solid #333;
