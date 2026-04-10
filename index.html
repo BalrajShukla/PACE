@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PACE Tool - Dark Mode Assessment</title>
+    <title>PACE Tool - Mobile Friendly</title>
     <style>
         /* Dark Theme Variables */
         :root {
@@ -41,6 +41,7 @@
             margin-bottom: 25px;
             font-weight: 600;
             letter-spacing: 0.5px;
+            line-height: 1.3;
         }
         
         /* Dashboard & Gauge Styles */
@@ -131,48 +132,31 @@
             background: transparent;
             margin: 0;
         }
-        input[type=range]:focus {
-            outline: none;
-        }
+        input[type=range]:focus { outline: none; }
         
         /* Slider Track */
         input[type=range]::-webkit-slider-runnable-track {
-            width: 100%;
-            height: 8px;
-            cursor: pointer;
-            background: #444;
-            border-radius: 4px;
+            width: 100%; height: 8px; cursor: pointer;
+            background: #444; border-radius: 4px;
         }
         input[type=range]::-moz-range-track {
-            width: 100%;
-            height: 8px;
-            cursor: pointer;
-            background: #444;
-            border-radius: 4px;
+            width: 100%; height: 8px; cursor: pointer;
+            background: #444; border-radius: 4px;
         }
         
         /* Slider Thumb */
         input[type=range]::-webkit-slider-thumb {
-            height: 24px;
-            width: 24px;
-            border-radius: 50%;
-            background: var(--accent-blue);
-            cursor: pointer;
-            -webkit-appearance: none;
-            margin-top: -8px; /* Centers thumb on the track */
+            height: 26px; width: 26px; border-radius: 50%;
+            background: var(--accent-blue); cursor: pointer;
+            -webkit-appearance: none; margin-top: -9px; 
             box-shadow: 0 0 10px rgba(0,0,0,0.5);
             transition: background 0.3s, transform 0.1s;
         }
-        input[type=range]::-webkit-slider-thumb:active {
-            transform: scale(1.2);
-        }
+        input[type=range]::-webkit-slider-thumb:active { transform: scale(1.15); }
+        
         input[type=range]::-moz-range-thumb {
-            height: 24px;
-            width: 24px;
-            border-radius: 50%;
-            background: var(--accent-blue);
-            cursor: pointer;
-            border: none;
+            height: 26px; width: 26px; border-radius: 50%;
+            background: var(--accent-blue); cursor: pointer; border: none;
             box-shadow: 0 0 10px rgba(0,0,0,0.5);
         }
 
@@ -187,6 +171,37 @@
             color: var(--text-muted);
         }
         .label-active { color: var(--accent-blue); }
+
+        /* =========================================
+           MOBILE RESPONSIVENESS (Media Queries)
+           ========================================= */
+        @media (max-width: 650px) {
+            body { padding: 10px; }
+            .container { padding: 25px 15px; }
+            h2 { font-size: 20px; }
+            
+            /* Scale down the dashboard gauge slightly for small screens */
+            .dashboard { padding: 20px 10px; margin-bottom: 25px; }
+            .gauge-container { transform: scale(0.9); margin-bottom: 5px; }
+            .score-display { font-size: 40px; }
+            .inference-badge { font-size: 14px; padding: 6px 18px; margin-top: 5px; }
+            .inference-text { font-size: 14px; }
+            
+            /* Adjust question cards */
+            .question { padding: 18px; margin-bottom: 15px; }
+            .question-text { font-size: 15px; margin-bottom: 25px; }
+            
+            /* Ensure slider labels fit perfectly without overlapping */
+            .slider-labels { font-size: 11px; margin-top: 18px; }
+            
+            /* Make the thumb slightly larger on mobile for easier tapping */
+            input[type=range]::-webkit-slider-thumb {
+                height: 28px; width: 28px; margin-top: -10px;
+            }
+            input[type=range]::-moz-range-thumb {
+                height: 28px; width: 28px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -228,7 +243,6 @@
 
     const form = document.getElementById('paceForm');
     
-    // Build the questions
     questions.forEach((q, index) => {
         const div = document.createElement('div');
         div.className = 'question';
@@ -247,7 +261,6 @@
     });
 
     function updateScore(sliderElement) {
-        // Optional: Highlight the active label under the moved slider
         if(sliderElement) {
             const labels = sliderElement.nextElementSibling.querySelectorAll('.label-text');
             labels.forEach(lbl => lbl.classList.remove('label-active'));
@@ -261,15 +274,12 @@
             totalScore += parseInt(slider.value);
         });
 
-        // 1. Update the number text
         document.getElementById('scoreDisplay').innerText = totalScore;
 
-        // 2. Update Gauge rotation (Min angle: -135deg, Max angle: 45deg)
         const degrees = -135 + (totalScore / 22) * 180;
         const gaugeFill = document.getElementById('gaugeFill');
         gaugeFill.style.transform = `rotate(${degrees}deg)`;
 
-        // 3. Update Colors and Text based on Cutoffs
         const badge = document.getElementById('inferenceBadge');
         const text = document.getElementById('inferenceText');
 
