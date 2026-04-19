@@ -172,6 +172,23 @@
         }
         .label-active { color: var(--accent-blue); }
 
+        /* Scroll Reminder Styling */
+        .scroll-reminder {
+            text-align: center;
+            margin-top: 35px;
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--accent-blue);
+            letter-spacing: 0.5px;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-5px); }
+            60% { transform: translateY(-3px); }
+        }
+
         /* =========================================
            MOBILE RESPONSIVENESS (Media Queries)
            ========================================= */
@@ -224,6 +241,10 @@
 
     <form id="paceForm">
         </form>
+
+    <div class="scroll-reminder">
+        ↑ Scroll up to view your final score and inference ↑
+    </div>
 </div>
 
 <script>
