@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PACE Tool - Mobile Friendly</title>
+    <title>PACE Tool</title>
     <style>
         /* Dark Theme Variables */
         :root {
@@ -22,9 +22,62 @@
             font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
             max-width: 850px; 
             margin: 0 auto; 
-            padding: 20px; 
+            padding: 80px 20px 40px 20px; /* Top padding for sticky header */
             background-color: var(--bg-color); 
             color: var(--text-main); 
+        }
+
+        /* Sticky Progress / Result Bar */
+        .sticky-header {
+            position: fixed;
+            top: 0; left: 0; width: 100%;
+            background: rgba(30, 30, 30, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-color);
+            z-index: 1000;
+            padding: 15px 20px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.4s;
+        }
+
+        .progress-text {
+            font-size: 14px;
+            font-weight: bold;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            max-width: 810px;
+            height: 6px;
+            background: #333;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--accent-blue);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        /* Result State in Sticky Header */
+        .sticky-header.result-mode {
+            padding: 20px;
+        }
+        .sticky-header.result-mode .progress-bar { display: none; }
+        .sticky-header.result-mode .progress-text { 
+            color: #121212; 
+            font-size: 18px; 
+            margin: 0; 
         }
         
         .container { 
@@ -38,78 +91,45 @@
         h2 { 
             text-align: center; 
             color: #ffffff; 
-            margin-bottom: 25px;
+            margin-bottom: 15px;
             font-weight: 600;
             letter-spacing: 0.5px;
             line-height: 1.3;
         }
         
-        /* Dashboard & Gauge Styles */
-        .dashboard { 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            margin-bottom: 40px; 
-            padding: 30px 20px; 
-            background: #252525; 
-            border-radius: 12px; 
-            border: 1px solid var(--border-color); 
-        }
-        
-        .gauge-container {
-            width: 240px; height: 120px;
-            position: relative; overflow: hidden;
+        .reference {
+            text-align: center;
+            font-size: 14px;
+            color: var(--text-muted);
             margin-bottom: 15px;
         }
-        .gauge-bg {
-            width: 240px; height: 240px;
-            box-sizing: border-box; border-radius: 50%;
-            border: 30px solid #333;
-            position: absolute; top: 0; left: 0;
-            border-bottom-color: transparent; border-right-color: transparent;
-            transform: rotate(45deg);
-        }
-        .gauge-fill {
-            width: 240px; height: 240px;
-            box-sizing: border-box; border-radius: 50%;
-            border: 30px solid var(--danger-red);
-            position: absolute; top: 0; left: 0;
-            border-bottom-color: transparent; border-right-color: transparent;
-            transform: rotate(-135deg); 
-            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.6s;
-        }
-        
-        .score-container {
-            position: absolute; bottom: 0; width: 100%;
-            text-align: center; padding-bottom: 5px;
-        }
-        .score-display { 
-            font-size: 48px; font-weight: bold; color: #ffffff; line-height: 1; 
-        }
-        .score-max { font-size: 14px; color: var(--text-muted); margin-top: 4px; }
-        
-        .inference-badge { 
-            margin-top: 15px; padding: 8px 24px; border-radius: 30px; 
-            font-weight: bold; font-size: 16px; color: #ffffff; 
-            background-color: var(--danger-red); 
-            transition: background-color 0.6s, color 0.6s;
-            text-transform: uppercase; letter-spacing: 1px;
-        }
-        .inference-text { 
-            margin-top: 15px; text-align: center; font-size: 16px; 
-            color: #cccccc; max-width: 550px; line-height: 1.5;
+        .reference a { color: var(--accent-blue); text-decoration: none; }
+        .reference a:hover { text-decoration: underline; }
+
+        .guidelines {
+            background: rgba(79, 172, 254, 0.1);
+            border-left: 4px solid var(--accent-blue);
+            padding: 15px 20px;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 30px;
+            font-size: 15px;
+            line-height: 1.5;
+            color: #d0d0d0;
         }
 
-        /* Slider Question Layout */
+        /* Question Layout */
         .question { 
-            margin-bottom: 25px; 
+            margin-bottom: 20px; 
             padding: 25px; 
             background: #2a2a2a;
             border-radius: 10px;
             border: 1px solid var(--border-color);
-            transition: background 0.3s;
+            transition: border-color 0.3s, background 0.3s;
         }
-        .question:hover { background: #303030; }
+        .question.unanswered-highlight {
+            border-color: var(--warning-yellow);
+            box-shadow: 0 0 10px rgba(255, 234, 0, 0.1);
+        }
         
         .question-text { 
             font-size: 16px; 
@@ -118,132 +138,111 @@
             color: #ffffff;
         }
 
-        /* Custom 3-Step Slider */
-        .slider-wrapper {
-            position: relative;
-            width: 100%;
-            padding: 0 10px;
-            box-sizing: border-box;
-        }
-        
-        input[type=range] {
-            -webkit-appearance: none;
-            width: 100%;
-            background: transparent;
-            margin: 0;
-        }
-        input[type=range]:focus { outline: none; }
-        
-        /* Slider Track */
-        input[type=range]::-webkit-slider-runnable-track {
-            width: 100%; height: 8px; cursor: pointer;
-            background: #444; border-radius: 4px;
-        }
-        input[type=range]::-moz-range-track {
-            width: 100%; height: 8px; cursor: pointer;
-            background: #444; border-radius: 4px;
-        }
-        
-        /* Slider Thumb */
-        input[type=range]::-webkit-slider-thumb {
-            height: 26px; width: 26px; border-radius: 50%;
-            background: var(--accent-blue); cursor: pointer;
-            -webkit-appearance: none; margin-top: -9px; 
-            box-shadow: 0 0 10px rgba(0,0,0,0.5);
-            transition: background 0.3s, transform 0.1s;
-        }
-        input[type=range]::-webkit-slider-thumb:active { transform: scale(1.15); }
-        
-        input[type=range]::-moz-range-thumb {
-            height: 26px; width: 26px; border-radius: 50%;
-            background: var(--accent-blue); cursor: pointer; border: none;
-            box-shadow: 0 0 10px rgba(0,0,0,0.5);
-        }
-
-        /* Slider Labels (NO, MAYBE, YES) */
-        .slider-labels {
+        /* Segmented Buttons */
+        .segmented-control {
             display: flex;
-            justify-content: space-between;
-            margin-top: 15px;
-            padding: 0 2px;
-            font-size: 13px;
-            font-weight: bold;
-            color: var(--text-muted);
+            background: #1a1a1a;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+            width: 100%;
         }
-        .label-active { color: var(--accent-blue); }
-
-        /* Scroll Reminder Styling */
-        .scroll-reminder {
+        .segment-btn {
+            flex: 1;
+            padding: 12px 0;
             text-align: center;
-            margin-top: 35px;
-            font-size: 16px;
+            background: transparent;
+            color: var(--text-muted);
+            border: none;
+            border-right: 1px solid var(--border-color);
+            font-size: 14px;
             font-weight: 600;
-            color: var(--accent-blue);
-            letter-spacing: 0.5px;
-            animation: bounce 2s infinite;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .segment-btn:last-child { border-right: none; }
+        .segment-btn:hover { background: #333; }
+        .segment-btn.selected {
+            background: var(--accent-blue);
+            color: #121212;
         }
 
-        @keyframes bounce {
-            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-            40% { transform: translateY(-5px); }
-            60% { transform: translateY(-3px); }
+        /* Bottom Dashboard */
+        .dashboard { 
+            display: none; /* Hidden until complete */
+            flex-direction: column; 
+            align-items: center; 
+            margin-top: 30px; 
+            padding: 30px 20px; 
+            background: #252525; 
+            border-radius: 12px; 
+            border: 1px solid var(--border-color); 
+            animation: fadeIn 0.5s;
+        }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .score-display { font-size: 54px; font-weight: bold; color: #ffffff; line-height: 1; margin-bottom: 5px; }
+        .score-max { font-size: 14px; color: var(--text-muted); margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px; }
+        
+        .inference-badge { 
+            padding: 10px 30px; border-radius: 30px; 
+            font-weight: bold; font-size: 18px; color: #121212; 
+            text-transform: uppercase; letter-spacing: 1px;
+            margin-bottom: 15px;
+        }
+        .inference-text { 
+            text-align: center; font-size: 16px; 
+            color: #cccccc; max-width: 600px; line-height: 1.6;
         }
 
-        /* =========================================
-           MOBILE RESPONSIVENESS (Media Queries)
-           ========================================= */
         @media (max-width: 650px) {
-            body { padding: 10px; }
+            body { padding: 90px 10px 20px 10px; }
             .container { padding: 25px 15px; }
             h2 { font-size: 20px; }
-            
-            /* Scale down the dashboard gauge slightly for small screens */
-            .dashboard { padding: 20px 10px; margin-bottom: 25px; }
-            .gauge-container { transform: scale(0.9); margin-bottom: 5px; }
-            .score-display { font-size: 40px; }
-            .inference-badge { font-size: 14px; padding: 6px 18px; margin-top: 5px; }
-            .inference-text { font-size: 14px; }
-            
-            /* Adjust question cards */
-            .question { padding: 18px; margin-bottom: 15px; }
-            .question-text { font-size: 15px; margin-bottom: 25px; }
-            
-            /* Ensure slider labels fit perfectly without overlapping */
-            .slider-labels { font-size: 11px; margin-top: 18px; }
-            
-            /* Make the thumb slightly larger on mobile for easier tapping */
-            input[type=range]::-webkit-slider-thumb {
-                height: 28px; width: 28px; margin-top: -10px;
-            }
-            input[type=range]::-moz-range-thumb {
-                height: 28px; width: 28px;
-            }
+            .question { padding: 18px; }
+            .segment-btn { font-size: 12px; padding: 15px 0; }
         }
     </style>
 </head>
 <body>
 
+<!-- Sticky Header -->
+<div class="sticky-header" id="stickyHeader">
+    <div class="progress-text" id="progressText">Answered: 0 / 11</div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+</div>
+
 <div class="container">
     <h2>Pre-Attendance Conference Evaluator (PACE)</h2>
     
-    <div class="dashboard">
-        <div class="gauge-container">
-            <div class="gauge-bg"></div>
-            <div class="gauge-fill" id="gaugeFill"></div>
-            <div class="score-container">
-                <div class="score-display" id="scoreDisplay">0</div>
-                <div class="score-max">out of 22</div>
-            </div>
-        </div>
-        <div class="inference-badge" id="inferenceBadge">Questionable</div>
-        <div class="inference-text" id="inferenceText">Score is below 14. Legitimacy is questionable. Registration must be done with caution.</div>
+    <div class="reference">
+        Reference: <a href="https://doi.org/10.1080/08989621.2026.2691602" target="_blank">https://doi.org/10.1080/08989621.2026.2691602</a>
+    </div>
+
+    <div class="guidelines">
+        <strong>Guidelines:</strong> Open the conference website and brochure in a different window and rate the questions below accordingly to evaluate its legitimacy.
+    </div>
+
+    <!-- NEW: DIP-DIP Cross-reference -->
+    <div class="resources-panel" style="background: #252525; border: 1px solid var(--border-color); padding: 20px; border-radius: 8px; margin-bottom: 35px; font-size: 14px;">
+        <strong style="color: #fff; display: block; margin-bottom: 10px; font-size: 16px;">Related Assessment Tool:</strong>
+        <p style="color: var(--text-muted); margin-top: 0; margin-bottom: 10px;">If the conference is associated with a journal, you should evaluate the journal's website as well.</p>
+        <a href="https://dcapbas.github.io/DIP-DIP" target="_blank" style="color: var(--accent-blue); text-decoration: none;">
+            🔬 Use the DIP-DIP Tool for Journal Evaluation
+        </a>
     </div>
 
     <form id="paceForm">
-        </form>
+        <!-- Questions injected via JS -->
+    </form>
 
-    <div class="scroll-reminder">
-        ↑ Scroll up to view your final score and inference ↑
+    <!-- Results Dashboard (Reveals when complete) -->
+    <div class="dashboard" id="resultsDashboard">
+        <div class="score-display" id="scoreDisplay">0</div>
+        <div class="score-max">Total Score (Out of 22)</div>
+        <div class="inference-badge" id="inferenceBadge">Evaluating...</div>
+        <div class="inference-text" id="inferenceText"></div>
     </div>
 </div>
 
@@ -262,72 +261,108 @@
         "11. The website layout is well-designed and professional."
     ];
 
+    // Array to track answers (null means unanswered)
+    let answers = new Array(questions.length).fill(null);
     const form = document.getElementById('paceForm');
     
+    // Generate Questions
     questions.forEach((q, index) => {
         const div = document.createElement('div');
         div.className = 'question';
+        div.id = `question-${index}`;
         div.innerHTML = `
             <div class="question-text">${q}</div>
-            <div class="slider-wrapper">
-                <input type="range" class="score-slider" min="0" max="2" step="1" value="0" oninput="updateScore(this)">
-                <div class="slider-labels">
-                    <span class="label-text label-active">NO (0)</span>
-                    <span class="label-text">MAYBE (1)</span>
-                    <span class="label-text">YES (2)</span>
-                </div>
+            <div class="segmented-control">
+                <button type="button" class="segment-btn" id="btn-${index}-0" onclick="setAnswer(${index}, 0)">NO (0)</button>
+                <button type="button" class="segment-btn" id="btn-${index}-1" onclick="setAnswer(${index}, 1)">MAYBE (1)</button>
+                <button type="button" class="segment-btn" id="btn-${index}-2" onclick="setAnswer(${index}, 2)">YES (2)</button>
             </div>
         `;
         form.appendChild(div);
     });
 
-    function updateScore(sliderElement) {
-        if(sliderElement) {
-            const labels = sliderElement.nextElementSibling.querySelectorAll('.label-text');
-            labels.forEach(lbl => lbl.classList.remove('label-active'));
-            labels[sliderElement.value].classList.add('label-active');
-        }
-
-        const sliders = document.querySelectorAll('.score-slider');
-        let totalScore = 0;
+    function setAnswer(questionIndex, value) {
+        answers[questionIndex] = value;
         
-        sliders.forEach(slider => {
-            totalScore += parseInt(slider.value);
-        });
-
-        document.getElementById('scoreDisplay').innerText = totalScore;
-
-        const degrees = -135 + (totalScore / 22) * 180;
-        const gaugeFill = document.getElementById('gaugeFill');
-        gaugeFill.style.transform = `rotate(${degrees}deg)`;
-
-        const badge = document.getElementById('inferenceBadge');
-        const text = document.getElementById('inferenceText');
-
-        if (totalScore < 14) {
-            gaugeFill.style.borderColor = 'var(--danger-red) transparent transparent var(--danger-red)';
-            badge.style.backgroundColor = 'var(--danger-red)';
-            badge.style.color = '#ffffff';
-            badge.innerText = "Questionable Legitimacy";
-            text.innerText = "The score falls below the cutoff of 14. Registration to attend must be done with extreme caution.";
-        } else if (totalScore >= 14 && totalScore <= 16) {
-            gaugeFill.style.borderColor = 'var(--warning-yellow) transparent transparent var(--warning-yellow)';
-            badge.style.backgroundColor = 'var(--warning-yellow)';
-            badge.style.color = '#121212'; 
-            badge.innerText = "Borderline Score";
-            text.innerText = "Borderline scores should be evaluated based on the evaluator's informed judgment.";
-        } else {
-            gaugeFill.style.borderColor = 'var(--success-green) transparent transparent var(--success-green)';
-            badge.style.backgroundColor = 'var(--success-green)';
-            badge.style.color = '#121212';
-            badge.innerText = "Likely Legitimate";
-            text.innerText = "The conference demonstrates standard academic practices indicating legitimacy.";
+        // Update button UI
+        for(let i=0; i<=2; i++) {
+            document.getElementById(`btn-${questionIndex}-${i}`).classList.remove('selected');
         }
+        document.getElementById(`btn-${questionIndex}-${value}`).classList.add('selected');
+
+        // Remove warning highlight if present
+        document.getElementById(`question-${questionIndex}`).classList.remove('unanswered-highlight');
+
+        checkProgress();
     }
 
-    // Initialize the live dashboard on first load
-    updateScore();
-</script>
+    function checkProgress() {
+        const answeredCount = answers.filter(a => a !== null).length;
+        const total = questions.length;
+        
+        const header = document.getElementById('stickyHeader');
+        const progressText = document.getElementById('progressText');
+        const progressFill = document.getElementById('progressFill');
+        const dashboard = document.getElementById('resultsDashboard');
 
+        if (answeredCount < total) {
+            // Still answering
+            header.classList.remove('result-mode');
+            header.style.backgroundColor = 'rgba(30, 30, 30, 0.95)';
+            progressText.innerText = `Answered: ${answeredCount} / ${total}`;
+            progressText.style.color = 'var(--text-muted)';
+            progressFill.style.width = `${(answeredCount / total) * 100}%`;
+            dashboard.style.display = 'none';
+
+            // Highlight missed questions if they are near the end
+            if (answeredCount > 0) {
+                answers.forEach((val, idx) => {
+                    if (val === null) document.getElementById(`question-${idx}`).classList.add('unanswered-highlight');
+                });
+            }
+
+        } else {
+            // Complete! Calculate Score
+            let totalScore = answers.reduce((a, b) => a + b, 0);
+            
+            progressFill.style.width = '100%';
+            dashboard.style.display = 'flex';
+            
+            document.getElementById('scoreDisplay').innerText = totalScore;
+            const badge = document.getElementById('inferenceBadge');
+            const text = document.getElementById('inferenceText');
+
+            header.classList.add('result-mode');
+            
+            if (totalScore < 14) {
+                badge.style.backgroundColor = 'var(--danger-red)';
+                badge.style.color = '#ffffff';
+                badge.innerText = "Questionable Legitimacy";
+                text.innerText = "The score falls below the cutoff of 14. Registration to attend must be done with extreme caution.";
+                header.style.backgroundColor = 'var(--danger-red)';
+                progressText.innerText = `Score: ${totalScore}/22 - Questionable`;
+            } else if (totalScore >= 14 && totalScore <= 16) {
+                badge.style.backgroundColor = 'var(--warning-yellow)';
+                badge.style.color = '#121212'; 
+                badge.innerText = "Borderline Score";
+                text.innerText = "Borderline scores should be evaluated based on the evaluator's informed judgment.";
+                header.style.backgroundColor = 'var(--warning-yellow)';
+                progressText.innerText = `Score: ${totalScore}/22 - Borderline`;
+            } else {
+                badge.style.backgroundColor = 'var(--success-green)';
+                badge.style.color = '#121212';
+                badge.innerText = "Likely Legitimate";
+                text.innerText = "The conference demonstrates standard academic practices indicating legitimacy.";
+                header.style.backgroundColor = 'var(--success-green)';
+                progressText.innerText = `Score: ${totalScore}/22 - Legitimate`;
+            }
+
+            // Scroll gently to the bottom dashboard
+            setTimeout(() => {
+                dashboard.scrollIntoView({ behavior: 'smooth', block: 'end' });
+            }, 200);
+        }
+    }
+</script>
 </body>
 </html>
